@@ -1,0 +1,7 @@
+-------------------------------------------------------------------------------
+Test set: com.prototype.demo.DemoApplicationTests
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 16.653 s <<< FAILURE! - in com.prototype.demo.DemoApplicationTests
+contextLoads  Time elapsed: 0.001 s  <<< ERROR!
+java.lang.NoSuchMethodError: org.springframework.data.redis.repository.configuration.RedisRepositoryConfigurationExtension.registerIfNotAlreadyRegistered(Lorg/springframework/beans/factory/support/AbstractBeanDefinition;Lorg/springframework/beans/factory/support/BeanDefinitionRegistry;Ljava/lang/String;Ljava/lang/Object;)V
+

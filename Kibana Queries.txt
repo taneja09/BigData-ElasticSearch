@@ -1,0 +1,174 @@
+#Get All Documents
+GET healthplan_index/_search 
+{
+  "query": {
+    "match_all": {}
+  }
+}
+
+#Get the complete Object from Index 
+GET /healthplan_index/_doc/12xvxc345ssdsds-508
+GET /healthplan_index/_doc/12xvxc345ssdsds-590
+
+#Delete the complete Object from Index 
+DELETE /healthplan_index/_doc/12xvxc345ssdsds-508
+DELETE /healthplan_index/_doc/12xvxc345ssdsds-590
+
+#Exclude linkedPlanServices from the object an returns everything else
+GET /healthplan_index/_search
+{
+  "_source": {
+    "includes": [ "*" ],
+    "excludes": [ "linkedPlanServices" ]
+  }
+}
+
+#Retrieve only planserviceCostShares
+GET /healthplan_index/_search
+{
+    "_source": ["linkedPlanServices.planserviceCostShares"]
+
+}
+
+#Retrieve only linkedPlanServices
+GET /healthplan_index/_search
+{
+    "_source": ["linkedPlanServices.linkedService"]
+
+}
+
+#Retrieve Plancostshare with provided value 
+GET /healthplan_index/_search
+{
+"_source": ["planCostShares"],
+"query": {
+  "bool": {
+    "should": [
+      {
+        "match": {
+          "planCostShares.copay": 28  
+        }
+      }
+    ],
+    "minimum_should_match": 1
+  }
+},
+"from": 0,
+"size": 10
+}
+
+#Gets aggregate document count of planserviceCostShares
+GET /healthplan_index/_search
+{
+ "size": 0,
+ "aggs": {
+   "popular_services": {
+     "terms": {
+       "field": "linkedPlanServices.planserviceCostShares.objectType.keyword"
+     }
+   }
+ }
+}
+
+#Get planCostShares within range 
+GET /healthplan_index/_search
+{
+"_source": ["linkedPlanServices"],
+ "query": {
+   "range" : {
+     "linkedPlanServices.planserviceCostShares.copay": {
+       "gte": "180",
+       "lte": "200"
+     }
+   }
+ }
+}
+
+#Gets aggregate document count of linkedService
+GET /healthplan_index/_search
+{
+ "size": 0,
+ "aggs": {
+   "popular_services": {
+     "terms": {
+       "field": "linkedPlanServices.linkedService.name.keyword"
+     }
+   }
+ }
+}
+
+#Gets Maximum copay of planserviceCostShares from all documents
+GET /healthplan_index/_search
+{
+"_source": ["linkedPlanServices.planserviceCostShares"],
+      "aggs": {
+        "MaxCopay": {
+          "max": {
+            "field": "linkedPlanServices.planserviceCostShares.copay"
+          }
+        }
+    }
+}
+
+#Gets Minimum deductible of planserviceCostShares among all documents
+GET /healthplan_index/_search
+{
+"size": 0,
+      "aggs": {
+        "theMinDedudctible": {
+          "min": {
+            "field": "linkedPlanServices.planserviceCostShares.deductible"
+          }
+        }
+    }
+}
+
+#Sorting two properties of two elements
+GET /healthplan_index/_search
+{
+  "_source": ["linkedPlanServices.planserviceCostShares"],
+"sort": [
+  {"linkedPlanServices.planserviceCostShares.copay":{"order":"desc"}},
+  {"linkedPlanServices.planserviceCostShares.deductible":{"order":"desc"}}
+    ]
+}
+
+#Statistic of service 
+GET /healthplan_index/_search
+{
+ "size": 0,
+ "aggs": {
+   "copay_stats": {
+     "stats": {
+       "field": "linkedPlanServices.planserviceCostShares.copay"
+     }
+   }
+ }
+}
+
+
+
+==========================JSONPATH Queries==========================
+
+https://jsonpath.curiousconcept.com/
+
+
+#Display First planserviceCostShares object 
+$.linkedPlanServices[:0].planserviceCostShares
+
+#List all types of linked Services
+$.linkedPlanServices[*].linkedService.name
+
+#Retrieve the last linkedService name 
+$.linkedPlanServices[(@.length-1)].linkedService.name
+
+#Retrieve deductible where copay is = 250
+$..[?(@.copay=250)].deductible
+
+#retrieve the Object-Ids where plan name is "well baby"
+$..[?(@.name="well baby")].objectId
+
+#Retrieve deductibles from planserviceCostShares
+$.linkedPlanServices[?(@.objectType=='planservice')].planserviceCostShares.deductible
+
+=========================================================================
